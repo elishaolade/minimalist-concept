@@ -1,0 +1,78 @@
+<section class="hero-section">
+    <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            {% for block in section.blocks %}
+                {% assign handle = block.type %}
+                {% assign heroCollection = block.settings.hero_collection %}
+                {% assign pickedCollection = collections[heroCollection] %}
+                {% case handle %}
+                    {% when 'slide'%}
+                        <div class="carousel-item">
+                            <a href="{{ pickedCollection.url }}">
+                                <picture>
+                                    <source srcset="{{ block.settings.lg-img | img_url: 'large' }}" media="(min-width: 1400px)">
+                                    <source srcset="{{ block.settings.md-img | img_url: 'medium' }}" media="(min-width: 769px)">
+                                    <source srcset="{{ block.settings.sm-img | img_url: 'small' }}" media="(min-width: 577px)">
+                                    <img class="d-block w-100" src="{{ block.settings.xs-img | img_url: 'small' }}" alt="{{ block.settings.collection }}">
+                                </picture>
+                            </a>
+                        </div>
+                    {% else %}
+                {% endcase %}
+            {% endfor %}
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+</section>
+{% schema %}
+    {
+        "name":"Hero",
+        "blocks": [
+            {
+                "type":"slide",
+                "name": "Slide",
+                "settings":[
+                    {
+                        "id":"xs-img",
+                        "type":"image_picker",
+                        "label":"Extra Small Image (600 x 900)"
+                    },
+                    {
+                        "id":"sm-img",
+                        "type":"image_picker",
+                        "label":"Small Image (800 x 900)"
+                    },
+                    {
+                        "id":"md-img",
+                        "type":"image_picker",
+                        "label":"Medium Image (1200 x 900)"
+                    },
+                    {
+                        "id":"lg-img",
+                        "type":"image_picker",
+                        "label":"Large Image (2000 x 900)"
+                    },
+                    {
+                        "id":"hero_collection",
+                        "type":"collection",
+                        "label":"Collection"
+                    }
+                ]
+            }
+            
+        ],
+        "presets": [
+            {
+                "name": "Hero",
+                "category": "Call To Attention"
+            }
+        ]
+    }
+{% endschema %}
