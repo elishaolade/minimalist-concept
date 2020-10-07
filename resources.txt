@@ -9,3 +9,12 @@ https://shopify.dev/tutorials/customize-theme-troubleshooting-roll-back-to-older
 
 Adding an item to the cart with AJAX 
 https://support.rechargepayments.com/hc/en-us/articles/360008683774-Adding-an-item-to-the-cart-with-AJAX
+
+Jquery AJAX
+https://api.jquery.com/Jquery.ajax/
+
+Cart API Reference (for interacting with cart)
+https://shopify.dev/docs/themes/ajax-api/reference/cart
+
+JS Vanilla Helper Functions *
+https://vanillajstoolkit.com/helpers/
