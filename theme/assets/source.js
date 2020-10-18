@@ -1,11 +1,13 @@
 $(document).ready(function(){
 
+  var cart = $('[data-dummy-cart]');
+  var productForm = $('[data-product-form]');
 
-
-  $('#product-form').on('submit',function(event){
-    event.preventDefault();
+  productForm.on('submit',function(event){
     var form = $(this);
     var formData = form.serialize();
+    
+    event.preventDefault();
 
     /* Log Test */
     console.log(formData);
@@ -17,14 +19,15 @@ $(document).ready(function(){
       context: form,
       data: formData
     })
-    .done(function(result){
-      console.log('success '+result.title);
+    .done(function(res){
+      var cart = JSON.parse(res);
+      createCartInstance(cart)
     })
     .fail(function(error){
       console.log(`Error ${error.status}: ${error.statusText}`);
     })
     .always(function(){
-      console.log('always');
+      event.preventDefault();
     });
 
   });
@@ -74,5 +77,20 @@ $(document).ready(function(){
   });
 
 });
+
+function createCartInstance(){
+  $.ajax({
+    url: '/cart.js',
+    method: 'GET',
+    dataType: 'json'
+  })
+  .done(function(state){
+    state.items.forEach(item => console.log(item));
+  })
+}
+
+function createCartItem() {
+  
+}
 
 

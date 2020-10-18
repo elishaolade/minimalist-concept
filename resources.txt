@@ -18,3 +18,12 @@ https://shopify.dev/docs/themes/ajax-api/reference/cart
 
 JS Vanilla Helper Functions *
 https://vanillajstoolkit.com/helpers/
+
+AJAX Introduction
+https://www.w3schools.com/xml/ajax_intro.asp
+
+AJAX 
+https://developer.mozilla.org/en-US/docs/Web/Guide/AJAX
+
+jQuery.ajax()
+https://api.jquery.com/jquery.ajax/
