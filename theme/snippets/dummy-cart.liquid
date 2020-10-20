@@ -1,3 +1,24 @@
-<div class="dummy-cart" style="background: white; padding: 20px;" data-dummy-cart>
-
+<div class="dummy-cart" style="background: white;" data-dummy-cart>
+    <div class="dummy-cart__header py-4 px-4">
+        <div class="w-100 d-flex justify-content-center align-items-center">
+            <h4 class="mb-0">Your Cart</h4>
+            <button class="close-cart-btn" data-cart-close>Close</button>
+        </div>
+    </div>
+    <div class="dummy-cart__body">
+        <ul class="cart-items list-group" data-cart-items>
+            {%- if cart.items -%}
+                {%- for item in cart.items -%}
+                    <li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id="{{ item.variant_id }}">
+                        <div>
+                            <h6 class="my-0">{{ item.title }}</h6>
+                            <small class="text-muted d-block">Quantity: {{ item.quantity }}</small>
+                            <button class="d-none btn mt-2" data-remove-cart-item>Remove</button>
+                        </div>
+                        <span class="text-muted">$ {{ item.price | divided_by: 100 }}</span>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
 </div>    

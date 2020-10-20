@@ -1,7 +1,49 @@
 $(document).ready(function(){
 
-  var cart = $('[data-dummy-cart]');
+  var self = this;
+  var cartDrawer = $('[data-dummy-cart]');
   var productForm = $('[data-product-form]');
+  var cartItems = $('[data-cart-items]');
+  var cartItem = $('[data-cart-item]');
+  var removeCartItem = $('[data-remove-cart-item]');
+  var cartButton = $('[data-cart-button]');
+
+  /** Beg. Navbar */
+  
+  /** End. Navbar */
+
+  /** Beg. Cart Popup*/
+  
+  /** End. Cart Popup*/
+
+  /** Beg. Cart Items */
+  cartItem.on({
+    mouseenter: function() {
+      var self = $(this);
+      $(this).find('button').addClass(function() { 
+        let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
+        return toggle;
+      });
+    },
+    mouseleave: function(){
+      $(this).find('button').removeClass(function() { 
+        let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
+        console.log(toggle);
+        return toggle; 
+      });
+    }
+  })
+  /** End. Cart Items */
+
+  /** Beg. Remove Cart Item */
+  removeCartItem.each(function(){
+    $(this).click(function(){
+      let item = $(this).closest('[data-cart-item]');
+      removeItem(item, cartItems);
+    })
+  });
+  /** End. Remove Cart Item */
+  
 
   productForm.on('submit',function(event){
     var form = $(this);
@@ -21,10 +63,11 @@ $(document).ready(function(){
     })
     .done(function(res){
       var cart = JSON.parse(res);
-      createCartInstance(cart)
+      console.log(cart);
+      updateCartInstance(cartItems);
     })
     .fail(function(error){
-      console.log(`Error ${error.status}: ${error.statusText}`);
+      console.log(`Error ${error.status}: ${error}`);
     })
     .always(function(){
       event.preventDefault();
@@ -78,19 +121,87 @@ $(document).ready(function(){
 
 });
 
-function createCartInstance(){
+function updateCartInstance(element) {
   $.ajax({
     url: '/cart.js',
-    method: 'GET',
-    dataType: 'json'
+    method:'GET'
   })
-  .done(function(state){
-    state.items.forEach(item => console.log(item));
+  .done(function(res){
+    var cart = JSON.parse(res);
+    updateCartList(cart, element);
+  })
+  .fail(function(error){
+    console.log(`Error ${error.status}: ${error}`);
   })
 }
 
-function createCartItem() {
-  
+function updateCartList(state, element) {
+  element.empty();
+  console.log(element)
+  var items = state.items;
+  items.forEach(item => {
+    
+    /* Represents a cart item */ 
+    let newItem = 
+      $(`<li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id=${ item.variant_id }>
+          <div>
+            <h6 class="my-0">${ item.title }</h6>
+            <small class="text-muted">Quantity: ${item.quantity}</small>
+            <button class="d-none btn mt-2 data-remove-cart-item">Remove</button>
+          </div>
+          <span class="text-muted">${ '$' + item.price/100 }</span>
+        </li>`);
+    
+    /* Adds cart item */
+    newItem.on({
+      mouseenter: function() {
+        var self = $(this);
+        $(this).find('button').addClass(function() { 
+          let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
+          return toggle;
+        });
+      },
+      mouseleave: function(){
+        $(this).find('button').removeClass(function() { 
+          let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
+          console.log(toggle);
+          return toggle; 
+        });
+      }
+    })
+
+    /* Append item to list */
+    newItem.appendTo(element);
+
+    var item = newItem;
+
+    /* Add event listener*/
+    item.find('button').click(function(){
+      var itm = $(this).closest('[data-cart-item]');
+      console.log(itm);
+      removeItem(itm, element);
+    });
+
+  });
+
 }
 
+function removeItem(item, element) {
+  let variantId = item.attr('data-variant-id');
+  console.log('removeItem: ' + variantId);
+
+  $.ajax({
+    url: '/cart/change.js',
+    method:'POST',
+    data: { id: variantId, quantity: 0 }
+  })
+  .done(function(res){
+    var cart = JSON.parse(res);
+    console.log(cart); 
+    updateCartList(cart, element);
+  })
+  .fail(function(error){
+    console.log(`Error ${error.status}: ${error}`);
+  })
+}
 

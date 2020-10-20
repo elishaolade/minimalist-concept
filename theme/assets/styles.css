@@ -12,13 +12,36 @@ body, html{
     max-width: 100% !important;
 }
 
-
 .dummy-cart {
     display: block;
-    position: absolute;
-    top: -100%;
-    left: 0;
+    position: fixed;
+    right: 0;
     z-index: 5000;
+    /* height: 100vh; */
+    -webkit-box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
+    -moz-box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
+    box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
+}
+
+.dummy-cart__header {
+    position: relative;
+}
+
+.close-cart-btn {
+    border: none;
+    background: none;
+    color: red;
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+}
+
+.dummy-cart__body {
+
+}
+
+.dummy-cart .cart-items { 
+    width: 360px;
 }
 
 /***********************************Start of Header************************************************/
