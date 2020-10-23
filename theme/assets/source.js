@@ -7,6 +7,7 @@ $(document).ready(function(){
   var cartItem = $('[data-cart-item]');
   var removeCartItem = $('[data-remove-cart-item]');
   var cartButton = $('[data-cart-button]');
+  var cartItemQty = $('[data-cart-item-qty]');
 
   /** Beg. Navbar */
   
@@ -136,26 +137,46 @@ function updateCartInstance(element) {
 }
 
 function updateCartList(state, element) {
+
+  var currency = state.currency;
+
+  var self = this;
+
+  /* Clean out old list items */
   element.empty();
-  console.log(element)
+
+  /* Get each product in cart */
   var items = state.items;
+
+  /* For each product in cart :
+  
+  */
   items.forEach(item => {
     
-    /* Represents a cart item */ 
+    /* Create a new item in html */ 
     let newItem = 
       $(`<li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id=${ item.variant_id }>
-          <div>
-            <h6 class="my-0">${ item.title }</h6>
-            <small class="text-muted">Quantity: ${item.quantity}</small>
-            <button class="d-none btn mt-2 data-remove-cart-item">Remove</button>
+          <div class="d-flex">
+            <div>
+              <img class="mr-3" width="100" src="${ item.image }"/>
+            </div>
+            <div>
+              <h6 class="my-0">${ item.title }</h6>
+              <form action="">
+                  <label class="text-muted d-block">
+                      <span class="mr-2">Quantity</span>
+                      <input type="number" name="quantity" value=${item.quantity} min="1" max="10"  data-cart-item-qty></input>
+                  </label>
+              </form>
+              <span class="text-muted">$ ${ [item.final_line_price / 100] + " " + currency }</span>
+              <button class="d-none btn mt-2" data-remove-cart-item>Remove</button>
+            </div>
           </div>
-          <span class="text-muted">${ '$' + item.price/100 }</span>
         </li>`);
     
-    /* Adds cart item */
+    /* Create event listener for hover */
     newItem.on({
       mouseenter: function() {
-        var self = $(this);
         $(this).find('button').addClass(function() { 
           let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
           return toggle;
@@ -170,22 +191,76 @@ function updateCartList(state, element) {
       }
     })
 
-    /* Append item to list */
+    /* Append new item to list */
     newItem.appendTo(element);
 
-    var item = newItem;
+    /* This new item added to list */
+    // var item = newItem;
 
     /* Add event listener*/
-    item.find('button').click(function(){
+    newItem.find('button').click(function(){
       var itm = $(this).closest('[data-cart-item]');
       console.log(itm);
       removeItem(itm, element);
+    });
+
+    var oldQty = item.quantity;
+
+    newItem.find('[data-cart-item-qty]').on("input", function(){
+
+      var qty = $(this).val();
+      console.log(qty);
+      
+      $.ajax({
+        url: '/cart/change.js',
+        method: 'POST',
+        data: { id: item.variant_id, quantity: qty }
+      })
+      .done(function(response){
+        var cart = JSON.parse(response);
+        console.log(cart)
+        updateCartList(cart,element);
+      })
+      .fail(function(error){
+        console.log(`Error ${error.status}: ${error}`);
+      })
     });
 
   });
 
 }
 
+function updateQty(variantId,qty){
+  console.log(variantId);
+  $.ajax({
+    url: '/cart/update.js',
+    method: 'POST',
+    data: { id: variantId, quantity: qty }
+  })
+  .done(function(response){
+    var cart = JSON.parse(response);
+  })
+  .fail(function(error){
+    console.log(`Error ${error.status}: ${error}`);
+  })
+}
+
+function updateItem(qty, item ) {
+  $.ajax({
+    url: '/cart/update.js',
+    method:'POST',
+    data: { id: item.variant_id, quantity: qty  }
+  })
+  .done(function(res){
+    var cart = JSON.parse(res);
+    console.log(cart);
+      // item.find('[data-cart-item-qty]').val(qty);
+  })
+  .fail(function(error){
+    console.log(`Error ${error.status}: ${error}`);
+  })
+
+}
 function removeItem(item, element) {
   let variantId = item.attr('data-variant-id');
   console.log('removeItem: ' + variantId);
@@ -204,4 +279,3 @@ function removeItem(item, element) {
     console.log(`Error ${error.status}: ${error}`);
   })
 }
-

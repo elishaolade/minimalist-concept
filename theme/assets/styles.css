@@ -21,6 +21,14 @@ body, html{
     -webkit-box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
     -moz-box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
     box-shadow: 6px 6px 5px 0px rgba(0,0,0,0.22);
+    width: 400px;
+}
+
+.dummy-cart input[type=number]::-webkit-inner-spin-button, 
+.dummy-cart input[type=number]::-webkit-outer-spin-button {  
+
+   opacity: 1;
+
 }
 
 .dummy-cart__header {
@@ -41,7 +49,7 @@ body, html{
 }
 
 .dummy-cart .cart-items { 
-    width: 360px;
+    width: 400px;
 }
 
 /***********************************Start of Header************************************************/
