@@ -6,30 +6,36 @@
         </div>
     </div>
     <div class="dummy-cart__body">
-        <ul class="cart-items list-group" data-cart-items>
-            {%- if cart.items -%}
-                {%- for item in cart.items -%}
-                    <li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id="{{ item.variant_id }}">
-                        <div class="d-flex">
-                            <div>
-                                <img class="mr-3" src="{{ item | img_url }}"/>
+        {% if cart.items != blank %}
+            <ul class="cart-items list-group" data-cart-items>
+                {%- if cart.items -%}
+                    {%- for item in cart.items -%}
+                        <li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id="{{ item.variant_id }}">
+                            <div class="d-flex">
+                                <div>
+                                    <img class="mr-3" src="{{ item | img_url }}"/>
+                                </div>
+                                <div>
+                                    <h`6 class="my-0">{{ item.title }}</h6>
+                                    <form action="">
+                                        <label class="text-muted d-block">
+                                            <span class="mr-2">Quantity</span>
+                                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="10" data-cart-item-qty></input>
+                                        </label>
+                                    </form>
+                                    <button class="d-none btn mt-2" data-remove-cart-item>Remove</button>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="my-0">{{ item.title }}</h6>
-                                <form action="">
-                                    <label class="text-muted d-block">
-                                        <span class="mr-2">Quantity</span>
-                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="10" data-cart-item-qty></input>
-                                    </label>
-                                </form>
-                                <button class="d-none btn mt-2" data-remove-cart-item>Remove</button>
-                            </div>
-                        </div>
-                        <span class="text-muted">$ {{ item.price | divided_by: 100 }}</span>
-                    </li>
-                {% endfor %}
-            {% endif %}
-        </ul>
+                            <span class="text-muted">$ {{ item.price | divided_by: 100 }}</span>
+                        </li>
+                    {% endfor %}
+                {%- endif -%}
+            </ul>
+        {% else %}
+            <div class="py-3 cart-empty">
+                <h6>Your Cart is empty. </h6>
+            </div>
+        {% endif %}
         <div class="px-3  my-3 w-100 d-flex justify-content-between">
             <span>Subtotal</span>
             <span>${{ cart.total_price | divided_by: 100 }}</span>
