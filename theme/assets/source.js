@@ -1,81 +1,21 @@
+var selectors = {
+  cartPopup: '[data-cart-popup]',
+  cartItem: '[data-cart-item]',
+  cartItemWrapper: '[data-cart-item-wrapper]',
+  cartItemQty: '[data-cart-item-qty]'
+}
 $(document).ready(function(){
-
-  var self = this;
-  var cartDrawer = $('[data-dummy-cart]');
   var productForm = $('[data-product-form]');
-  var cartItems = $('[data-cart-items]');
   var cartItem = $('[data-cart-item]');
-  var removeCartItem = $('[data-remove-cart-item]');
-  var cartButton = $('[data-cart-button]');
-  var cartItemQty = $('[data-cart-item-qty]');
-
-  /** Beg. Navbar */
-  
-  /** End. Navbar */
-
-  /** Beg. Cart Popup*/
-  
-  /** End. Cart Popup*/
-
-  /** Beg. Cart Items */
-  cartItem.on({
-    mouseenter: function() {
-      var self = $(this);
-      $(this).find('button').addClass(function() { 
-        let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
-        return toggle;
-      });
-    },
-    mouseleave: function(){
-      $(this).find('button').removeClass(function() { 
-        let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
-        console.log(toggle);
-        return toggle; 
-      });
-    }
-  })
-  /** End. Cart Items */
-
-  /** Beg. Remove Cart Item */
-  removeCartItem.each(function(){
-    $(this).click(function(){
-      let item = $(this).closest('[data-cart-item]');
-      removeItem(item, cartItems);
-    })
-  });
-  /** End. Remove Cart Item */
-  
-
+  var modal = $('#exampleModal');
+  var cartItem = $(selectors.cartItem);
   productForm.on('submit',function(event){
     var form = $(this);
     var formData = form.serialize();
-    
     event.preventDefault();
-
-    /* Log Test */
-    console.log(formData);
-    
-    $.ajax({
-      url: '/cart/add.js',
-      method:'POST',
-      contentType: 'application/x-www-form-urlencoded',
-      context: form,
-      data: formData
-    })
-    .done(function(res){
-      var cart = JSON.parse(res);
-      console.log(cart);
-      updateCartInstance(cartItems);
-    })
-    .fail(function(error){
-      console.log(`Error ${error.status}: ${error}`);
-    })
-    .always(function(){
-      event.preventDefault();
-    });
-
+    modal.modal('show');
+    addItem(formData,cartItem);
   });
-
 
   /* hero section */
   var carouselItem = document.querySelector('.carousel-item');
@@ -122,160 +62,127 @@ $(document).ready(function(){
 
 });
 
-function updateCartInstance(element) {
+function createState(element){
   $.ajax({
     url: '/cart.js',
-    method:'GET'
+    method:'GET',
   })
   .done(function(res){
     var cart = JSON.parse(res);
-    updateCartList(cart, element);
+    var currencyPlaceHolder = element.find('.currency');
+    currencyPlaceHolder.html(cart.currency);
   })
   .fail(function(error){
     console.log(`Error ${error.status}: ${error}`);
   })
 }
 
-function updateCartList(state, element) {
+function updateCartItem(item, targetElement){ 
+  var title = item.title;
+  var qty = item.quantity;
+  var imageSrc = item.image;
+  var unitPrice = item.price/100;
+  var totalPrice = item.final_line_price/100;
+  var item__wrapper = targetElement.find('[data-cart-item-wrapper]');
+  item__wrapper.empty();
+  var item__container = $('<div class="d-flex"></div>');
+  var item__image = $('<div class="mr-3"><img width="100" src="'+ imageSrc +'"/></div>');
+  var item__details = $('<div class="w-100"></div>');
+  var details__header = $('<div class="details__header d-flex justify-content-between"></div>')
+  var titleDisplay = $('<h5><b>'+title+'</b></h5>');
+  var indPrice = $('<div><span class="price mr-2">'+ unitPrice +'</span>' + '<span class="currency"></span></div>');
+  var itemTotalPrice = $('<div><b>Total:</b> '+ totalPrice +'<span class="currency ml-2" data-cart-currency></span></div></div>');
 
-  var currency = state.currency;
+  item__wrapper.append(item__container);
+  item__container.append(item__image);
+  item__container.append(item__details);
+  item__details.append(details__header);
+  item__details.append(indPrice);
+  item__details.append(itemTotalPrice);
+  details__header.append(titleDisplay);
+  details__header.append(indPrice);
 
-  var self = this;
+  var inputContainer = $('<div class="input-container d-flex mt-2"></div>')
+  var input = $('<input style="text-align: center; width: 50px;" type="number" min="1" max="9" step="1" value="' + qty + '" data-qty-input/>');
+  var navBtns = $('<div class="navBtns"></div>');
+  var btns = $('<div class="qty-btns top" data-qty-increment>+</div><div class="qty-btns bottom" data-qty-deincrement>-</div>');
 
-  /* Clean out old list items */
-  element.empty();
+  item__details.append(inputContainer);
+  inputContainer.append(input);
+  navBtns.insertAfter(input);
+  navBtns.append(btns);
+  createState(targetElement);
+  $('.input-container').each(function(){
+    var self = this;
+    var spinner = $(this),
+        input = spinner.find('input[type="number"]'),
+        btnUp = spinner.find('[data-qty-increment]'),
+        btnDown = spinner.find('[data-qty-deincrement]'),
+        min = input.attr('min'),
+        max = input.attr('max');
 
-  /* Get each product in cart */
-  var items = state.items;
+      var value = input.val();
+      btnUp.click(function() {
+        var oldValue = parseFloat(input.val());
+        if (oldValue >= max) {
+          var newVal = oldValue;
+        } else {
+          var newVal = oldValue + 1;
+        }
+        value = newVal;
+        spinner.find("input").val(newVal);
+        spinner.find("input").trigger("change");
+        changeItem(item.variant_id, value, targetElement);
+      });
 
-  /* For each product in cart :
-  
-  */
-  items.forEach(item => {
-    
-    /* Create a new item in html */ 
-    let newItem = 
-      $(`<li class="cart__item list-group-item d-flex justify-content-between lh-condensed" data-cart-item data-variant-id=${ item.variant_id }>
-          <div class="d-flex">
-            <div>
-              <img class="mr-3" width="100" src="${ item.image }"/>
-            </div>
-            <div>
-              <h6 class="my-0">${ item.title }</h6>
-              <form action="">
-                  <label class="text-muted d-block">
-                      <span class="mr-2">Quantity</span>
-                      <input type="number" name="quantity" value=${item.quantity} min="1" max="10"  data-cart-item-qty></input>
-                  </label>
-              </form>
-              <span class="text-muted">$ ${ [item.final_line_price / 100] + " " + currency }</span>
-              <button class="d-none btn mt-2" data-remove-cart-item>Remove</button>
-            </div>
-          </div>
-        </li>`);
-    
-    /* Create event listener for hover */
-    newItem.on({
-      mouseenter: function() {
-        $(this).find('button').addClass(function() { 
-          let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
-          return toggle;
-        });
-      },
-      mouseleave: function(){
-        $(this).find('button').removeClass(function() { 
-          let toggle = $(this).hasClass('d-none') ? 'd-block' : 'd-none';
-          console.log(toggle);
-          return toggle; 
-        });
-      }
-    })
-
-    /* Append new item to list */
-    newItem.appendTo(element);
-
-    /* This new item added to list */
-    // var item = newItem;
-
-    /* Add event listener*/
-    newItem.find('button').click(function(){
-      var itm = $(this).closest('[data-cart-item]');
-      console.log(itm);
-      removeItem(itm, element);
-    });
-
-    var oldQty = item.quantity;
-
-    newItem.find('[data-cart-item-qty]').on("input", function(){
-
-      var qty = $(this).val();
-      console.log(qty);
-      
-      $.ajax({
-        url: '/cart/change.js',
-        method: 'POST',
-        data: { id: item.variant_id, quantity: qty }
-      })
-      .done(function(response){
-        var cart = JSON.parse(response);
-        console.log(cart)
-        updateCartList(cart,element);
-      })
-      .fail(function(error){
-        console.log(`Error ${error.status}: ${error}`);
-      })
-    });
-
+      btnDown.click(function() {
+        var oldValue = parseFloat(input.val());
+        if (oldValue <= min) {
+          var newVal = oldValue;
+        } else {
+          var newVal = oldValue - 1;
+        }
+        value = newVal;
+        spinner.find("input").val(newVal);
+        spinner.find("input").trigger("change");
+        changeItem(item.variant_id, value, targetElement);
+      });
   });
-
 }
 
-function updateQty(variantId,qty){
-  console.log(variantId);
+function addItem(formData,targetElement) {
   $.ajax({
-    url: '/cart/update.js',
-    method: 'POST',
+    url: '/cart/add.js',
+    method:'POST',
+    contentType: 'application/x-www-form-urlencoded',
+    data: formData
+  })
+  .done(function(response){
+    var item = JSON.parse(response);
+    targetElement.attr('[data-variant-id]');
+    createState(targetElement);
+    updateCartItem(item, targetElement);
+  })
+  .fail(function(error){
+    console.log(`Error ${error.status}: ${error}`);
+  });
+}
+
+function changeItem(variantId, qty, targetElement) {
+  $.ajax({
+    url: '/cart/change.js',
+    method:'POST',
     data: { id: variantId, quantity: qty }
   })
   .done(function(response){
     var cart = JSON.parse(response);
+    $.each(cart.items , function(index, value){
+      var itm = value;
+      if (itm.variant_id === variantId)
+        updateCartItem(itm, targetElement);
+    });
   })
   .fail(function(error){
     console.log(`Error ${error.status}: ${error}`);
-  })
-}
-
-function updateItem(qty, item ) {
-  $.ajax({
-    url: '/cart/update.js',
-    method:'POST',
-    data: { id: item.variant_id, quantity: qty  }
-  })
-  .done(function(res){
-    var cart = JSON.parse(res);
-    console.log(cart);
-      // item.find('[data-cart-item-qty]').val(qty);
-  })
-  .fail(function(error){
-    console.log(`Error ${error.status}: ${error}`);
-  })
-
-}
-function removeItem(item, element) {
-  let variantId = item.attr('data-variant-id');
-  console.log('removeItem: ' + variantId);
-
-  $.ajax({
-    url: '/cart/change.js',
-    method:'POST',
-    data: { id: variantId, quantity: 0 }
-  })
-  .done(function(res){
-    var cart = JSON.parse(res);
-    console.log(cart); 
-    updateCartList(cart, element);
-  })
-  .fail(function(error){
-    console.log(`Error ${error.status}: ${error}`);
-  })
+  });
 }

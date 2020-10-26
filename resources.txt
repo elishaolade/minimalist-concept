@@ -27,3 +27,28 @@ https://developer.mozilla.org/en-US/docs/Web/Guide/AJAX
 
 jQuery.ajax()
 https://api.jquery.com/jquery.ajax/
+
+Bootstrap Modal
+https://getbootstrap.com/docs/4.5/components/modal/
+
+jquery - return value using ajax result on success
+https://stackoverflow.com/questions/3302702/jquery-return-value-using-ajax-result-on-success
+
+jquery ajax call success, how do i change a global variable in the wrapper javascript function?
+https://stackoverflow.com/questions/11917734/jquery-ajax-call-success-how-do-i-change-a-global-variable-in-the-wrapper-javas
+
+Waypoints 
+http://imakewebthings.com/waypoints/
+
+I MAKE WEB THINGS
+http://imakewebthings.com/
+
+Online Javascript Decompressor
+https://www.generateit.net/javascript-decompressor/
+
+Artem - Digital Agency Theme
+https://themeforest.net/item/artem-digital-agency-wordpress-theme/27997241?utm_campaign=purchase_confirmation&utm_content=position6_tf&utm_keyword=sysemail&utm_medium=email&utm_source=System+Email&utm_term=sysemail
+
+jQuery API
+https://api.jquery.com/
+
