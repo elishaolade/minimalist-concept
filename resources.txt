@@ -57,3 +57,12 @@ https://api.jquery.com/JQuery.each/#:~:text=each()%20function%20can%20be,corresp
 
 Tables
 https://getbootstrap.com/docs/4.5/content/tables/
+
+Visual Studio Code Tab Key does not insert a tab
+https://stackoverflow.com/questions/35519538/visual-studio-code-tab-key-does-not-insert-a-tab
+
+input number custom style
+https://codepen.io/komarovdesign/pen/PPRbgb
+
+CSS Selector Reference
+https://www.w3schools.com/cssref/css_selectors.asp
