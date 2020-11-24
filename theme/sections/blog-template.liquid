@@ -1,0 +1,16 @@
+<section class="blog-template-section">
+    <div class="article-template__container">
+        <div class="text-center py-5">
+            <h1>Our Blog</h1>
+        </div>
+        <div>
+            <ul class="article-list">
+                {% for article in blog.articles %}
+                    <li class="article-item mb-3">
+                        {% include 'article-post', article %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>

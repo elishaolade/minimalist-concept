@@ -1,0 +1,171 @@
+<section class="article-template-section">
+    <div class="article-template__container">
+        <div class="article-template__header py-5">
+            {% if section.settings.blog_show_date %}
+                <div class="w-100 text-center">
+                    <span class="article-published text-center">{{ article.published_at | date: "%a, %d %b %y" }}</span>
+                </div>
+            {% endif %}
+            <div class="section-header text-center">
+                <h1 class="article__title" id="title-0">{{ article.title }}</h1>
+            </div>
+        </div>
+
+        <div class="article-template__content">
+            <p class="article__content">{{ article.content }}</p>
+            <div class="mt-4 text-center">
+                <a href="/blogs/news" class="btn btn-outline-dark btn-lg">Back to News</a>
+            </div>
+        </div>
+
+        <div class="article-template__comments">
+            {% if blog.comments_enabled? %}
+                <h2>{{ number_of_comments }} comments</h2>
+                {% paginate article.comments by 5 %}
+                    {% for comment in article.comments %}
+                    <div>
+                        <div>{{ comment.content }}</div>
+                        {{ comment.author }} @ {{ comment.created_at }}
+                    </div>
+                    {% endfor %}
+                    {% if paginate.pages > 1 %}
+                    {{ paginate | default_pagination }}
+                    {% endif %}
+                {% endpaginate %}
+
+                <div>
+                    {% form 'new_comment', article %}
+                    {{ form.errors | default_errors }}
+                    <label for="CommentAuthor">name</label>
+                    <input type="text" name="comment[author]" id="CommentAuthor" placeholder="name" value="{{ form.author }}" autocapitalize="words">
+
+                    <label for="CommentEmail">email</label>
+                    <input type="email" name="comment[email]" id="CommentEmail" placeholder="email" value="{{ form.email }}" autocorrect="off" autocapitalize="off">
+
+                    <label for="CommentBody">message</label>
+                    <textarea name="comment[body]" id="CommentBody" placeholder="message">{{ form.body }}</textarea>
+
+                    <input type="submit" value="post">
+                    {% endform %}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+
+
+{% schema %}
+{
+  "name": {
+    "cs": "Příspěvky",
+    "da": "Opslag",
+    "de": "Posts",
+    "en": "Posts",
+    "es": "Publicaciones",
+    "fi": "Julkaisut",
+    "fr": "Articles",
+    "it": "Articoli",
+    "ja": "投稿",
+    "ko": "게시물",
+    "nb": "Innlegg",
+    "nl": "Berichten",
+    "pl": "Posty",
+    "pt-BR": "Posts",
+    "pt-PT": "Publicações",
+    "sv": "Inlägg",
+    "th": "โพสต์",
+    "tr": "Gönderiler",
+    "vi": "Bài viết",
+    "zh-CN": "文章",
+    "zh-TW": "貼文"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "blog_show_author",
+      "label": {
+        "cs": "Zobrazit autora",
+        "da": "Vis forfatter",
+        "de": "Autor anzeigen",
+        "en": "Show author",
+        "es": "Mostrar autor",
+        "fi": "Näytä tekijä",
+        "fr": "Afficher l'auteur",
+        "it": "Mostra autore",
+        "ja": "執筆者を表示する",
+        "ko": "작성자 표시",
+        "nb": "Vis forfatter",
+        "nl": "Auteur weergeven",
+        "pl": "Pokaż autora",
+        "pt-BR": "Exibir autor",
+        "pt-PT": "Mostrar autor",
+        "sv": "Visa författare",
+        "th": "แสดงผู้เขียน",
+        "tr": "Yazarı göster",
+        "vi": "Hiển thị tác giả",
+        "zh-CN": "显示作者",
+        "zh-TW": "顯示作者"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "blog_show_date",
+      "label": {
+        "cs": "Zobrazit datum",
+        "da": "Vis dato",
+        "de": "Datum anzeigen",
+        "en": "Show date",
+        "es": "Mostrar fecha",
+        "fi": "Näytä päivämäärä",
+        "fr": "Afficher la date",
+        "it": "Mostra data",
+        "ja": "日付を表示する",
+        "ko": "날짜 표시",
+        "nb": "Vis dato",
+        "nl": "Datum weergeven",
+        "pl": "Pokaż datę",
+        "pt-BR": "Exibir data",
+        "pt-PT": "Mostrar data",
+        "sv": "Visa datum",
+        "th": "แสดงวันที่",
+        "tr": "Tarihi göster",
+        "vi": "Hiển thị ngày",
+        "zh-CN": "显示日期",
+        "zh-TW": "顯示日期"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": {
+        "cs": "Zobrazit tlačítka pro sdílení na sociálních sítích",
+        "da": "Vis knapper til deling på sociale medier",
+        "de": "Buttons für Social Media anzeigen",
+        "en": "Show social sharing buttons",
+        "es": "Mostrar botones para compartir en redes sociales",
+        "fi": "Näytä sosiaalisen median jakamispainikkeet",
+        "fr": "Afficher les boutons de partage sur les médias sociaux",
+        "it": "Mostra i pulsanti per la condivisione sui social",
+        "ja": "ソーシャルメディアでの共有ボタンを表示する",
+        "ko": "소셜 공유 버튼 표시",
+        "nb": "Vis knapper for deling på sosiale medier",
+        "nl": "Knoppen voor sociaal delen weergeven",
+        "pl": "Pokaż przyciski udostępniania w mediach społecznościowych",
+        "pt-BR": "Exibir botões de compartilhamento em redes sociais",
+        "pt-PT": "Mostrar botões de partilha nas redes sociais",
+        "sv": "Visa knappar för delning i sociala medier",
+        "th": "แสดงปุ่มสำหรับแชร์ลงโซเชียล",
+        "tr": "Sosyal medya paylaşım düğmelerini göster",
+        "vi": "Hiển thị nút chia sẻ qua mạng xã hội",
+        "zh-CN": "显示社交分享按钮",
+        "zh-TW": "顯示社群分享按鈕"
+      },
+      "default": true
+    }
+  ]
+}
+{% endschema %}

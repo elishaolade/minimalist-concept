@@ -1,0 +1,139 @@
+<footer class="footer-1 pt-2">
+    <div class="grid-container">
+        <div>
+            <div class="px-3 py-2">
+                <div class="mb-3" style="position: relative;">
+                    <a style="position: absolute; top: 0; left: 0;" class="navbar-brand" href="#">
+                        {% if settings.logo %}
+                            <span class="shop__name text-uppercase">{{ shop.name }}</span>
+                        {% else %}
+                        <noscript>
+                            {% capture image_size %}{{ section.settings.logo_max_width | escape }}x{% endcapture %}
+                            <img src="{{ section.settings.logo | img_url: image_size }}"
+                            srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+                            alt="{{ section.settings.logo.alt | default: shop.name }}"
+                            style="max-width: {{ section.settings.logo_max_width }}px;">
+                            </noscript>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="d-flex px-3 py-3">
+                {% for block in section.blocks %}
+                    {% case block.type %}
+                        {% when 'menu'%}
+                            {% assign menu = block.settings.menu-list %}
+                            <ul class="menu-list mr-5">
+                                <div class="section_title mb-2">{{ linklists[menu].title }}</div>
+                                {% for link in linklists[menu].links %}
+                                    <li>
+                                        <a href="{{ link.url }}">{{ link.title }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                    {% endcase %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="about-container">
+            <div class="about_section px-3 pt-3 pb-0">
+                <div class="section_title mb-2">About</div>
+                <p> {{ section.settings.about-caption }}
+                </p>
+            </div>
+        </div>
+        <div class="newsletter-container px-3 py-3">
+                <div class="section_title mb-2">Newsletter</div>
+                <div class="input-group flex-nowrap mb-3">
+                    <input type="text" class="form-control" placeholder="Email Address" aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" id="subscription">Subscribe</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="social-media d-flex align-items-center justify-content-between px-3 py-3">
+        <ul class="social-media_list d-flex">
+            {% if settings.instagram_link != blank %}
+                <li class="social-media-itm">
+                    <a href="{{ settings.instagram_link }}">Instagram</a>
+                </li>
+            {% endif %} 
+            {% if settings.twitter_link != blank %}
+                <li class="social-media-itm">
+                    <a href="{{ settings.twitter_link }}">Twitter</a>
+                </li>
+            {% endif %}  
+            {% if settings.pinterest_link != blank %}
+                <li class="social-media-itm">
+                    <a href="{{ settings.pinterest_link }}">Facebook</a>
+                </li>
+            {% endif %}  
+        </ul>
+        <style>
+        .methods-of-payment img { padding: 0.2em; }
+        .lt-ie9 .methods-of-payment, .ie8 .methods-of-payment, .oldie .methods-of-payment { display: none; }
+        </style>
+        <span class="methods-of-payment">
+            {% if settings.paypal_option %}
+                <img src="{{ 'paypal' | payment_type_img_url }}" height="25" alt="paypal" />
+            {% endif %}
+            {% if settings.visa_option %}
+                <img src="{{ 'visa' | payment_type_img_url }}" height="25" alt="visa" />
+            {% endif %}
+            {% if settings.mastercard_option %}
+                <img src="{{ 'master' | payment_type_img_url }}" height="25" alt="master" />
+            {% endif %}
+            {% if settings.amex_option %}
+                <img src="{{ 'american_express' | payment_type_img_url }}" height="25" alt="american express" />
+            {% endif %}
+        </span>
+    </div>
+    <div class="d-flex justify-content-between px-3 pb-3">
+        <span class="copyright_area d-flex align-items-center">Copyright &#169; 2020 {{ settings.company }} All rights reserved. </span>
+        <div>
+            <a href="{{ shop.terms_of_service.policy.url }}" class="tos">Terms of Service</a>
+        </div>
+    </div>
+</footer>
+{% schema %}
+    {
+        "name":"footer-1",
+        "max_blocks": 2,
+        "settings": [
+            {
+                "id":"about-caption",
+                "type":"text",
+                "label":"Caption",
+                "default":"We learn. We build. We grow."
+            }
+        ],
+        "blocks": [
+            {
+                "type":"menu",
+                "name": "Menu",
+                "settings":[
+                    {
+                        "id":"menu-list",
+                        "type":"link_list",
+                        "label":"Menu"
+                    }
+                ]
+            },
+            {
+                "type":"pages",
+                "name":"Pages",
+                "settings":[
+                    {
+                        "id":"page",
+                        "type":"page",
+                        "label":"Pages"
+                    }
+                ]   
+            }
+        ]
+    }
+{% endschema %}

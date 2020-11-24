@@ -1,82 +1,94 @@
 {%- assign currency = cart.currency.iso_code -%}
 {%- assign total = cart.total_price | money -%}
-<form action="/cart" method="post" novalidate>
-  <div class="cart-page__container d-flex">
-    <div class="cart-page__content" data-cart-page>
-      {% if cart.item_count > 0 %}
-        <table class="cart-content__summary w-100">
-          <thead class="cart-content__table-header">
-            <tr>
-              <th class="table-header__info" scope="col">Item</th>
-              <th class="table-header__quantity" scope="col">Quantity</th>
-              <th class="table-header__price" scope="col">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in cart.items %}
-              <tr class="cart-content__item item" data-line-item data-variant-id="{{ item.variant.id }}">
-                <td class="line-item__info">
-                  <div class="d-flex">
-                    <div class="item-image__wrapper">
-                      <img class="line-item__image mr-4" width=100 src="{{ item | img_url: 'medium' }}" alt="{{ item.title | escape }}">
-                    </div>
-                    <div class="line-item__details">
-                      <h6 class="line-item__title">
-                        <a href="{{ item.variant.url }}">{{ item.product.title }}</a>
-                      </h6>
-                      <div class="variant__details">
-                        {% if product.selected_variant %}
-                          {{ product.selected_variant.option1 }}
-                        {% else %}
-                        {% endif %}
+<div class="cart-page" data-cart-page>
+  <section class="text-center py-5">
+    <h2 class="cart-page__title font-weight-bold">shopping bag</h2>
+  </section>
+  <section class="mb-5">
+    <div class="container">
+      <div class="col-12">
+        <form action="/cart" method="post" novalidate data-cart-form>
+          <div class="cart-page__container d-flex justify-content-center">
+            <div class="" data-cart-page>
+              {% if cart.item_count > 0 %}
+                <table class="cart-content__summary w-100">
+                  <thead class="cart-content__table-header">
+                    <tr>
+                      <th class="table-header__info" scope="col">Item</th>
+                      <th class="table-header__quantity" scope="col">Quantity</th>
+                      <th class="table-header__price" scope="col">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for line_item in cart.items %}
+                      <tr class="cart-content__item item" data-line-item data-line-key={{ line_item.key }} data-variant-id="{{ line_item.variant.id }}">
+                        <td class="line-item__info">
+                          <div class="d-flex">
+                            <div class="item-image__wrapper">
+                              <img class="line-item__image mr-4" width=100 src="{{ line_item | img_url: '100x100' }}" alt="{{ line_item.title | escape }}">
+                            </div>
+                            <div class="line-item__details">
+                              <h6 class="line-item__title">
+                                <a href="{{ line_item.variant.url }}">{{ line_item.product.title }}</a>
+                              </h6>
+                              <div class="variant__details">
+                                {% if product.selected_variant %}
+                                  {{ product.selected_variant.option1 }}
+                                {% else %}
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="line-item__quantity">
+                          <div class="input-container">
+                            <input style="text-align: center; width: 50px;" type="number" min="1" max="9" step="1" value="{{ line_item.quantity }}" data-qty-input/>
+                          </div>
+                        </td>
+                        <td class="line-item__price">
+                          <div class="price-container font-weight-bold">
+                            {{ line_item.price | money }} <span class="currency">{{ currency }}</span>
+                          </div>
+                          <div class="line-item__adjustments">
+                            <button class="line-item__remove btn btn-link"  data-cart-item-remove>Remove</button>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="cart-page__summary">
+                  <div class="cart-page__checkout">
+                    <div class="cart-level__subtotal d-flex justify-content-between">
+                      <div class="cart-level__subtotal-heading">
+                        <div>
+                          <span class="font-weight-bold">Subtotal</span>
+                          <span class="checkout-subtotal__item-count">
+                            <span data-cart-item-count>({{ cart.item_count }} items)</span>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="cart-level__subtotal-info">
+                        <span class="checkout-subtotal__total">
+                          <span class="money font-weight-bold" data-cart-total>{{total}} {{currency}}</span>
+                        </span>
                       </div>
                     </div>
+                    <div class="pay_wrapper">
+                      <input type="submit" name="checkout" class="cart__submit btn btn-dark w-100 my-3" value="Checkout" data-items-checkout/>
+                    </div>
                   </div>
-                </td>
-                <td class="line-item__quantity">
-                  <div class="input-container">
-                    <input style="text-align: center; width: 50px;" type="number" min="1" max="9" step="1" value="{{ item.quantity }}" data-qty-input/>
-                  </div>
-                </td>
-                <td class="line-item__price">
-                  <div class="price-container font-weight-bold">
-                    {{ item.price | money }} <span class="currency">{{ currency }}</span>
-                  </div>
-                  <div class="line-item__adjustments">
-                    <button class="line-item__remove btn btn-link" href="" data-cart-item-remove>Remove</button>
-                  </div>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="cart-page__empty-content text-center">
-          <h3>Your shopping bag is empty</h3>
-        </div>
-      {% endif %}
-    </div>
-    <div class="cart-page__summary">
-      <div class="cart-page__checkout">
-        <div class="cart-level__subtotal d-flex justify-content-between">
-          <div class="cart-level__subtotal-heading">
-            <div>
-              <span class="font-weight-bold">Subtotal</span>
-              <span class="checkout-subtotal__item-count">
-                <span data-cart-item-count>({{ cart.item_count }} items)</span>
-              </span>
+                </div>
+              {% else %}
+                <div class="cart-page__empty-content text-center">
+                  <h3 class="mb-4">Your shopping bag is empty</h3>
+                  <a class="btn btn-outline-dark" href="{{ routes.all_products_collection_url }}">Continue Shopping</a>
+                </div>
+              {% endif %}
             </div>
           </div>
-          <div class="cart-level__subtotal-info">
-            <span class="checkout-subtotal__total">
-              <span class="money font-weight-bold" data-cart-total>{{total}} {{currency}}</span>
-            </span>
-          </div>
-        </div>
-        <div class="pay_wrapper">
-          <input type="submit" name="checkout" class="cart__submit btn btn-dark w-100 my-3" value="Checkout" data-items-checkout/>
-        </div>
+        </form>
       </div>
     </div>
-  </div>
-</form>
+  </section>
+</div>

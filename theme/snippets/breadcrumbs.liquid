@@ -1,0 +1,46 @@
+{% unless template == 'index' or template == 'cart' or template == 'list-collections' %}
+<nav class="breadcrumbs" role="navigation" aria-label="breadcrumbs" data-breadcrumbs>
+  <a href="/" data-breadcrumbs-home-url class="breadcrumbs__item mr-2" title="Home">Home</a>
+  {% if template contains 'page' %}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    <span class="mr-2">{{ page.title }}</span>
+  {% elsif template contains 'product' %}
+    {% if collection.url %}
+      <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+      {{ collection.title | link_to: collection.url }}
+    {% endif %}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    <span class="mr-2">{{ product.title }}</span>
+  {% elsif template contains 'collection' and collection.handle %}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    {% if current_tags %}
+      {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
+      {{ collection.title | link_to: url }}
+      <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+      <span class="mr-2">{{ current_tags | join: " + " }}</span>
+    {% else %}
+      <span class="mr-2">{{ collection.title }}</span>
+    {% endif %}
+  {% elsif template == 'blog' %}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    {% if current_tags %}
+      {{ blog.title | link_to: blog.url }}
+      <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+      <span class="mr-2">{{ current_tags | join: " + " }}</span>
+    {% else %}
+        <span class="mr-2">{{ blog.title }}</span>
+    {% endif %}
+  {% elsif template == 'article' %}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    {{ blog.title | link_to: blog.url }}
+    <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+    <span class="mr-2">{{ article.title }}</span>
+  {% else %}
+   <span class="breadcrumbs__seperator mr-2" aria-hidden="true">&rsaquo;</span>
+   <span class="mr-2">{{ page_title }}</span>
+  {% endif %}
+</nav>
+{% endunless %}
+<script>
+    console.log('{{template}}');
+</script>

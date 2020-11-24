@@ -1,84 +1,560 @@
+/********** Slate Code *************/
+/* ================ MODULES ================ */
+window.theme = window.theme || {};
+
+
+this.Shopify.theme = this.Shopify.theme || {};
+this.Shopify.theme.cart = (function (exports) {
+  'use strict';
+
+  function getDefaultRequestConfig() {
+    return JSON.parse(
+      JSON.stringify({
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json;'
+        }
+      })
+    );
+  }
+
+  function fetchJSON(url, config) {
+    return fetch(url, config).then(function(response) {
+      if (!response.ok) {
+        throw response;
+      }
+      return response.json();
+    });
+  }
+
+  function cart() {
+    return fetchJSON('/cart.js', getDefaultRequestConfig());
+  }
+
+  function cartAdd(id, quantity, properties) {
+    var config = getDefaultRequestConfig();
+
+    config.method = 'POST';
+    config.body = JSON.stringify({
+      id: id,
+      quantity: quantity,
+      properties: properties
+    });
+
+    return fetchJSON('/cart/add.js', config);
+  }
+
+  function cartAddFromForm(formData) {
+    var config = getDefaultRequestConfig();
+    delete config.headers['Content-Type'];
+
+    config.method = 'POST';
+    config.body = formData;
+
+    return fetchJSON('/cart/add.js', config);
+  }
+
+  function cartChange(line, options) {
+    var config = getDefaultRequestConfig();
+
+    options = options || {};
+
+    config.method = 'POST';
+    config.body = JSON.stringify({
+      line: line,
+      quantity: options.quantity,
+      properties: options.properties
+    });
+
+    return fetchJSON('/cart/change.js', config);
+  }
+
+  function cartClear() {
+    var config = getDefaultRequestConfig();
+    config.method = 'POST';
+
+    return fetchJSON('/cart/clear.js', config);
+  }
+
+  function cartUpdate(body) {
+    var config = getDefaultRequestConfig();
+
+    config.method = 'POST';
+    config.body = JSON.stringify(body);
+
+    return fetchJSON('/cart/update.js', config);
+  }
+
+  function cartShippingRates() {
+    return fetchJSON('/cart/shipping_rates.json', getDefaultRequestConfig());
+  }
+
+  function key(key) {
+    if (typeof key !== 'string' || key.split(':').length !== 2) {
+      throw new TypeError(
+        'Theme Cart: Provided key value is not a string with the format xxx:xxx'
+      );
+    }
+  }
+
+  function quantity(quantity) {
+    if (typeof quantity !== 'number' || isNaN(quantity)) {
+      throw new TypeError(
+        'Theme Cart: An object which specifies a quantity or properties value is required'
+      );
+    }
+  }
+
+  function id(id) {
+    if (typeof id !== 'number' || isNaN(id)) {
+      throw new TypeError('Theme Cart: Variant ID must be a number');
+    }
+  }
+
+  function properties(properties) {
+    if (typeof properties !== 'object') {
+      throw new TypeError('Theme Cart: Properties must be an object');
+    }
+  }
+
+  function form(form) {
+    if (!(form instanceof HTMLFormElement)) {
+      throw new TypeError('Theme Cart: Form must be an instance of HTMLFormElement');
+    }
+  }
+
+  function options(options) {
+    if (typeof options !== 'object') {
+      throw new TypeError('Theme Cart: Options must be an object');
+    }
+
+    if (
+      typeof options.quantity === 'undefined' &&
+      typeof options.properties === 'undefined'
+    ) {
+      throw new Error(
+        'Theme Cart: You muse define a value for quantity or properties'
+      );
+    }
+
+    if (typeof options.quantity !== 'undefined') {
+      quantity(options.quantity);
+    }
+
+    if (typeof options.properties !== 'undefined') {
+      properties(options.properties);
+    }
+  }
+
+  /**
+   * Cart Template Script
+   * ------------------------------------------------------------------------------
+   * A file that contains scripts highly couple code to the Cart template.
+   *
+   * @namespace cart
+   */
+
+  /**
+   * Returns the state object of the cart
+   * @returns {Promise} Resolves with the state object of the cart (https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#get-cart)
+   */
+  function getState() {
+    return cart();
+  }
+
+  /**
+   * Returns the index of the cart line item
+   * @param {string} key The unique key of the line item
+   * @returns {Promise} Resolves with the index number of the line item
+   */
+  function getItemIndex(key$$1) {
+    key(key$$1);
+
+    return cart().then(function(state) {
+      var index = -1;
+
+      state.items.forEach(function(item, i) {
+        index = item.key === key$$1 ? i + 1 : index;
+      });
+
+      if (index === -1) {
+        return Promise.reject(
+          new Error('Theme Cart: Unable to match line item with provided key')
+        );
+      }
+
+      return index;
+    });
+  }
+
+  /**
+   * Fetches the line item object
+   * @param {string} key The unique key of the line item
+   * @returns {Promise} Resolves with the line item object (See response of cart/add.js https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#add-to-cart)
+   */
+  function getItem(key$$1) {
+    key(key$$1);
+
+    return cart().then(function(state) {
+      var lineItem = null;
+
+      state.items.forEach(function(item) {
+        lineItem = item.key === key$$1 ? item : lineItem;
+      });
+
+      if (lineItem === null) {
+        return Promise.reject(
+          new Error('Theme Cart: Unable to match line item with provided key')
+        );
+      }
+
+      return lineItem;
+    });
+  }
+
+  /**
+   * Add a new line item to the cart
+   * @param {number} id The variant's unique ID
+   * @param {object} options Optional values to pass to /cart/add.js
+   * @param {number} options.quantity The quantity of items to be added to the cart
+   * @param {object} options.properties Line item property key/values (https://help.shopify.com/en/themes/liquid/objects/line_item#line_item-properties)
+   * @returns {Promise} Resolves with the line item object (See response of cart/add.js https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#add-to-cart)
+   */
+  function addItem(id$$1, options$$1) {
+    options$$1 = options$$1 || {};
+
+    id(id$$1);
+
+    return cartAdd(id$$1, options$$1.quantity, options$$1.properties);
+  }
+
+  /**
+   * Add a new line item to the cart from a product form
+   * @param {object} form DOM element which is equal to the <form> node
+   * @returns {Promise} Resolves with the line item object (See response of cart/add.js https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#add-to-cart)
+   */
+  function addItemFromForm(form$$1) {
+    form(form$$1);
+
+    var formData = new FormData(form$$1);
+    id(parseInt(formData.get('id'), 10));
+
+    return cartAddFromForm(formData);
+  }
+
+  /**
+   * Changes the quantity and/or properties of an existing line item.
+   * @param {string} key The unique key of the line item (https://help.shopify.com/en/themes/liquid/objects/line_item#line_item-key)
+   * @param {object} options Optional values to pass to /cart/add.js
+   * @param {number} options.quantity The quantity of items to be added to the cart
+   * @param {object} options.properties Line item property key/values (https://help.shopify.com/en/themes/liquid/objects/line_item#line_item-properties)
+   * @returns {Promise} Resolves with the state object of the cart (https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#get-cart)
+   */
+  function updateItem(key$$1, options$$1) {
+    key(key$$1);
+    options(options$$1);
+
+    return getItemIndex(key$$1).then(function(line) {
+      return cartChange(line, options$$1);
+    });
+  }
+
+  /**
+   * Removes a line item from the cart
+   * @param {string} key The unique key of the line item (https://help.shopify.com/en/themes/liquid/objects/line_item#line_item-key)
+   * @returns {Promise} Resolves with the state object of the cart (https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#get-cart)
+   */
+  function removeItem(key$$1) {
+    key(key$$1);
+
+    return getItemIndex(key$$1).then(function(line) {
+      return cartChange(line, { quantity: 0 });
+    });
+  }
+
+  /**
+   * Sets all quantities of all line items in the cart to zero. This does not remove cart attributes nor the cart note.
+   * @returns {Promise} Resolves with the state object of the cart (https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#get-cart)
+   */
+  function clearItems() {
+    return cartClear();
+  }
+
+  /**
+   * Gets all cart attributes
+   * @returns {Promise} Resolves with the cart attributes object
+   */
+  function getAttributes() {
+    return cart().then(function(state) {
+      return state.attributes;
+    });
+  }
+
+  /**
+   * Sets all cart attributes
+   * @returns {Promise} Resolves with the cart state object
+   */
+  function updateAttributes(attributes) {
+    return cartUpdate({ attributes: attributes });
+  }
+
+  /**
+   * Clears all cart attributes
+   * @returns {Promise} Resolves with the cart state object
+   */
+  function clearAttributes() {
+    return getAttributes().then(function(attributes) {
+      for (var key$$1 in attributes) {
+        attributes[key$$1] = '';
+      }
+      return updateAttributes(attributes);
+    });
+  }
+
+  /**
+   * Gets cart note
+   * @returns {Promise} Resolves with the cart note string
+   */
+  function getNote() {
+    return cart().then(function(state) {
+      return state.note;
+    });
+  }
+
+  /**
+   * Sets cart note
+   * @returns {Promise} Resolves with the cart state object
+   */
+  function updateNote(note) {
+    return cartUpdate({ note: note });
+  }
+
+  /**
+   * Clears cart note
+   * @returns {Promise} Resolves with the cart state object
+   */
+  function clearNote() {
+    return cartUpdate({ note: '' });
+  }
+
+  /**
+   * Get estimated shipping rates.
+   * @returns {Promise} Resolves with response of /cart/shipping_rates.json (https://help.shopify.com/en/themes/development/getting-started/using-ajax-api#get-shipping-rates)
+   */
+  function getShippingRates() {
+    return cartShippingRates();
+  }
+
+  exports.getState = getState;
+  exports.getItemIndex = getItemIndex;
+  exports.getItem = getItem;
+  exports.addItem = addItem;
+  exports.addItemFromForm = addItemFromForm;
+  exports.updateItem = updateItem;
+  exports.removeItem = removeItem;
+  exports.clearItems = clearItems;
+  exports.getAttributes = getAttributes;
+  exports.updateAttributes = updateAttributes;
+  exports.clearAttributes = clearAttributes;
+  exports.getNote = getNote;
+  exports.updateNote = updateNote;
+  exports.clearNote = clearNote;
+  exports.getShippingRates = getShippingRates;
+
+  return exports;
+
+}({}));
+
+/**
+ * Currency Helpers
+ * -----------------------------------------------------------------------------
+ * A collection of useful functions that help with currency formatting
+ *
+ * Current contents
+ * - formatMoney - Takes an amount in cents and returns it as a formatted dollar value.
+ *
+ */
+
+const moneyFormat = '${{amount}}';
+
+/**
+ * Format money values based on your shop currency settings
+ * @param  {Number|string} cents - value in cents or dollar amount e.g. 300 cents
+ * or 3.00 dollars
+ * @param  {String} format - shop money_format setting
+ * @return {String} value - formatted value
+ */
+function formatMoney(cents, format) {
+  if (typeof cents === 'string') {
+    cents = cents.replace('.', '');
+  }
+  let value = '';
+  const placeholderRegex = /\{\{\s*(\w+)\s*\}\}/;
+  const formatString = format || moneyFormat;
+
+  function formatWithDelimiters(
+    number,
+    precision = 2,
+    thousands = ',',
+    decimal = '.'
+  ) {
+    if (isNaN(number) || number == null) {
+      return 0;
+    }
+
+    number = (number / 100.0).toFixed(precision);
+
+    const parts = number.split('.');
+    const dollarsAmount = parts[0].replace(
+      /(\d)(?=(\d\d\d)+(?!\d))/g,
+      `$1${thousands}`
+    );
+    const centsAmount = parts[1] ? decimal + parts[1] : '';
+
+    return dollarsAmount + centsAmount;
+  }
+
+  switch (formatString.match(placeholderRegex)[1]) {
+    case 'amount':
+      value = formatWithDelimiters(cents, 2);
+      break;
+    case 'amount_no_decimals':
+      value = formatWithDelimiters(cents, 0);
+      break;
+    case 'amount_with_comma_separator':
+      value = formatWithDelimiters(cents, 2, '.', ',');
+      break;
+    case 'amount_no_decimals_with_comma_separator':
+      value = formatWithDelimiters(cents, 0, '.', ',');
+      break;
+  }
+
+  return formatString.replace(placeholderRegex, value);
+}
+
+/**********Theme Code *************/
+
 var context = {
-  cart: '/cart'
+  cart: '/cart',
+  products: '/products/',
+  home: '/'
 }
-var selectors = {
-  cartPage: '[data-cart-page]',
-  cartPopup: '[data-cart-popup]',
-  cartItem: '[data-cart-item]',
-  lineItem: '[data-line-item]',
-  tableItem: '[data-cart-table-item]',
-  cartItemWrapper: '[data-cart-item-wrapper]',
-  cartItemQty: '[data-cart-item-qty]',
-  cartItemRow: '[data-cart-table-item]',
-  cartVariantId: '[data-variant-id]',
-  cartTotal: '[data-cart-total]',
-  cartItemRemove: '[data-cart-item-remove]'
-}
-$(document).ready(function(){
+
+document.addEventListener('DOMContentLoaded', function(){
+
+  var tspan = SVG.find('tspan');
+
+  if(window.location.pathname.includes('/products/')){
+    var form = document.querySelector('[data-product-form]');
+    console.log(form);
+    if(form.addEventListener){
+      form.addEventListener("submit", 
+      function(e){
+        var self = this;
+        e.preventDefault();
+        Shopify.theme.cart.addItemFromForm(self).then(item => {
+          Shopify.theme.cart.getState().then(state => {
+            tspan.text(state.item_count + '');
+          })
+        })
+      }, false); 
+    }
+  }
 
   if(window.location.pathname === context.cart) {
-    $(selectors.lineItem).find('input[type=number]').each(function(){
-      $(this).change(function(){
-        var lineItem = $(this).closest(selectors.lineItem);
-        var val = $(this).val();
-        var variantId = lineItem.attr('data-variant-id'); 
-        $.ajax({
-          url: '/cart/change.js',
-          method: 'POST',
-          data: { id: variantId, quantity: val }
-        })
-        .done(function(response){
-          var cart = JSON.parse(response);
-          console.log(cart);
-          $.each(cart.items,function(index, item){
-            console.log(item);  
-          });
-          /** Update subtotal */
-          $(selectors.cartTotal).text(cart.total_price/100 + ' ' + cart.currency);
-        })
-        .fail(function(error){
-          console.log(error);
+    var lineItems = document.querySelectorAll('[data-line-item]');
+    lineItems.forEach(lineItem => {
+      var key = lineItem.getAttribute('data-line-key');
+      lineItem.querySelector('[data-cart-item-remove]')
+      .addEventListener('click',function(e){
+        e.preventDefault();
+        Shopify.theme.cart.removeItem(key).then(state => { 
+          tspan.text(state.item_count + '');
+          cartSubtotal.textContent = 
+            formatMoney(state.total_price) + " " + state.currency
+          if(state.item_count == 0) {
+            /* Initialize DOM elements */
+            var page = document.querySelector('[data-cart-page]');
+            var cartSummary = document.querySelector('.cart-content__summary');
+            var checkoutSummary = document.querySelector('.cart-page__summary');
+
+            /* Remove cart table and checkout summary */
+            cartSummary.remove();
+            checkoutSummary.remove();
+
+            /** HEADING */
+            var heading = document.createElement('h3');
+            heading.className = 'mb-4';
+            var text = 'Your shopping bag is empty';
+            heading.textContent = text;
+
+            /** LINK */
+            var link = document.createElement('a');
+            link.className = 'btn btn-outline-dark';
+            link.setAttribute('href','/');
+            var linkTextNode = document.createTextNode('Continue Shopping');
+            link.appendChild(linkTextNode);
+
+            /** CONTAINER */
+            var container = document.createElement('div');
+            container.className = 'cart-page__empty-content text-center';
+            container.appendChild(heading);
+            container.appendChild(link);
+
+            /* Append container */
+            page.appendChild(container);
+          }
+          else {
+            lineItem.remove();
+          }
         });
       });
     });
-    $(selectors.cartItemRemove).click(function(event){
-      event.preventDefault();
-      var lineItem = $(this).closest(selectors.lineItem);
-      var variantId = lineItem.attr('data-variant-id');
-      $.ajax({
-        url:'/cart/change.js',
-        method: 'POST',
-        data: {id: variantId, quantity: 0 }
-      })
-      .done(function(response){
-        var cart = JSON.parse(response);
-        lineItem.remove();
-        $(selectors.cartTotal).text(cart.total_price/100 + ' ' + cart.currency);
-      })
-    })
+    var cartSubtotal = document.querySelector('[data-cart-total]');
+    var inputs = document.querySelectorAll('[data-qty-input]');
+    inputs.forEach(input => {
+      var self = input;
+      input.addEventListener('change', function(){
+        var value = parseInt(this.value);
+        var lineItem = self.closest('[data-line-item]');
+        var key = lineItem.getAttribute('data-line-key');
+        Shopify.theme.cart.updateItem(key, { quantity: value }).then(state => {
+          /* Change bubble count */
+          tspan.innerHTML = state.item_count;
+          /* Find specific item */
+          var item = state.items.find(item => item.key === key);
+          /* Print quantity of specific item */
+          console.log(`The item with key '${key}' now has quantity ${item.quantity}`);
+          /* Update total */
+          cartSubtotal.textContent = 
+            formatMoney(state.total_price) + " " + state.currency;
+          tspan.text(state.item_count + '')
+        });
+      });
+    });
   }
 
-  var productForm = $('[data-product-form]');
-  var cartItem = $('[data-cart-item]');
-  var modal = $('#exampleModal');
-  var cartItem = $(selectors.cartItem);
-  productForm.on('submit',function(event){
-    var form = $(this);
-    var formData = form.serialize();
-    event.preventDefault();
-    modal.modal('show');
-    addItem(formData,cartItem);
-  });
+  if(window.location.pathname === context.home || window.location.pathname.includes(context.products)) {
+    var carouselItem = document.querySelector('.carousel-item');
+    carouselItem.classList.toggle('active');
+    $('.carousel').carousel({
+      interval: 1500
+    });
+  }
 
-  /* hero section */
-  var carouselItem = document.querySelector('.carousel-item');
-  carouselItem.classList.toggle('active');
-  $('.carousel').carousel({
-    interval: 2000
-  });
-  /* hero section */
+  if(window.location.pathname.includes(context.products)) {
+    var productDisplay = document.querySelector('.product-display');
+    var productCarouselItem = productDisplay.querySelector('.carousel-item');
+    var square = productDisplay.querySelector(".square");
+    square.style.width = `${square.parentElement.offsetWidth}px`;
+    content.style.height = `${square.offsetWidth}px`;
+    productCarouselItem.classList.toggle('active');
+    $('.square .carousel').carousel({
+      interval: 2000
+    });
+  }
 
-  /* featured products section */
   var featuredProductsSection = document.querySelector('.featured-collection-section');
   var featuredProducts = featuredProductsSection.querySelectorAll('.product');
   featuredProducts.forEach( product => {
@@ -98,247 +574,5 @@ $(document).ready(function(){
       overlay.style.bottom = '0px';
     });
   });
-  /* featured products section */
-
-  /** Product Display Carousel */
-  var productDisplay = document.querySelector('.product-display');
-  var productCarouselItem = productDisplay.querySelector('.carousel-item');
-  var square = productDisplay.querySelector(".square");
-  square.style.width = `${square.parentElement.offsetWidth}px`;
-  // var content = square.querySelector('.content');
-  content.style.height = `${square.offsetWidth}px`;
-  productCarouselItem.classList.toggle('active');
-  /** Product Display Carousel */
-  $('.square .carousel').carousel({
-    interval: 2000
-  });
-
 });
 
-function createState(element){
-  $.ajax({
-    url: '/cart.js',
-    method:'GET',
-  })
-  .done(function(res){
-    var cart = JSON.parse(res);
-    var currencyPlaceHolder = element.find('.currency');
-    currencyPlaceHolder.html(cart.currency);
-  })
-  .fail(function(error){
-    console.log(`Error ${error.status}: ${error}`);
-  })
-}
-
-function updateCartItem(item, targetElement){
-  var title = item.title;
-  var qty = item.quantity;
-  var imageSrc = item.image;
-  var unitPrice = item.price/100;
-  var totalPrice = item.final_line_price/100;
-  var item__wrapper = targetElement.find('[data-cart-item-wrapper]');
-  item__wrapper.empty();
-  var item__container = $('<div class="d-flex"></div>');
-  var item__image = $('<div class="mr-3"><img width="100" src="'+ imageSrc +'"/></div>');
-  var item__details = $('<div class="w-100"></div>');
-  var details__header = $('<div class="details__header d-flex justify-content-between"></div>')
-  var titleDisplay = $('<h5><b>'+title+'</b></h5>');
-  var indPrice = $('<div><span class="price mr-2">'+ unitPrice +'</span>' + '<span class="currency"></span></div>');
-  var itemTotalPrice = $('<div><b>Total:</b> '+ totalPrice +'<span class="currency ml-2" data-cart-currency></span></div></div>');
-
-  item__wrapper.append(item__container);
-  item__container.append(item__image);
-  item__container.append(item__details);
-  item__details.append(details__header);
-  item__details.append(indPrice);
-  item__details.append(itemTotalPrice);
-  details__header.append(titleDisplay);
-  details__header.append(indPrice);
-
-  var inputContainer = $('<div class="input-container d-flex mt-2"></div>')
-  var input = $('<input style="text-align: center; width: 50px;" type="number" min="1" max="9" step="1" value="' + qty + '" data-qty-input/>');
-  var navBtns = $('<div class="navBtns"></div>');
-  var btns = $('<div class="qty-btns top" data-qty-increment>+</div><div class="qty-btns bottom" data-qty-deincrement>-</div>');
-
-  item__details.append(inputContainer);
-  inputContainer.append(input);
-  navBtns.insertAfter(input);
-  navBtns.append(btns);
-  createState(targetElement);
-  $('.input-container').each(function(){
-    var self = this;
-    var spinner = $(this),
-        input = spinner.find('input[type="number"]'),
-        btnUp = spinner.find('[data-qty-increment]'),
-        btnDown = spinner.find('[data-qty-deincrement]'),
-        min = input.attr('min'),
-        max = input.attr('max');
-
-      var value = input.val();
-      btnUp.click(function() {
-        var oldValue = parseFloat(input.val());
-        if (oldValue >= max) {
-          var newVal = oldValue;
-        } else {
-          var newVal = oldValue + 1;
-        }
-        value = newVal;
-        spinner.find("input").val(newVal);
-        spinner.find("input").trigger("change");
-        changeItem(item.variant_id, value, targetElement);
-      });
-
-      btnDown.click(function() {
-        var oldValue = parseFloat(input.val());
-        if (oldValue <= min) {
-          var newVal = oldValue;
-        } else {
-          var newVal = oldValue - 1;
-        }
-        value = newVal;
-        spinner.find("input").val(newVal);
-        spinner.find("input").trigger("change");
-        changeItem(item.variant_id, value, targetElement);
-      });
-  });
-}
-
-function updateCartTableRow(item, targetElement) {
-
-}
-
-function addItem(formData,targetElement) {
-  $.ajax({
-    url: '/cart/add.js',
-    method:'POST',
-    contentType: 'application/x-www-form-urlencoded',
-    data: formData
-  })
-  .done(function(response){
-    var item = JSON.parse(response);
-    targetElement.attr('[data-variant-id]');
-    createState(targetElement);
-    updateCartItem(item, targetElement);
-  })
-  .fail(function(error){
-    console.log(`Error ${error.status}: ${error}`);
-  });
-}
-
-function changeItem(variantId, qty, targetElement) {
-  $.ajax({
-    url: '/cart/change.js',
-    method:'POST',
-    data: { id: variantId, quantity: qty }
-  })
-  .done(function(response){
-    var cart = JSON.parse(response);
-    $.each(cart.items , function(index, value){
-      var itm = value;
-      if (itm.variant_id === variantId)
-        updateCartItem(itm, targetElement);
-    });
-  })
-  .fail(function(error){
-    console.log(`Error ${error.status}: ${error}`);
-  });
-}
-
-function setupInput(){
-  var inputContainer = $('[data-cart-table-item]').find('.input-container');
-  var variantId;
-  inputContainer.each(function(){
-    var spinner = $(this),
-      /* get table item */
-      item = spinner.closest('[data-variant-id]');
-      /* get variant of table item */
-      variantId = item.attr('data-variant-id');
-
-      input = spinner.find('input[type="number"]'),
-      btnUp = spinner.find('[data-qty-increment]'),
-      btnDown = spinner.find('[data-qty-deincrement]'),
-      min = input.attr('min'),
-      max = input.attr('max');
-      
-      /* get value from input */
-      var value = input.val();
-
-      btnUp.click(function() {
-        var oldValue = parseFloat(value);
-        if (oldValue >= max) {
-          var newVal = oldValue;
-        } else {
-          var newVal = oldValue + 1;
-        }
-        value = newVal;
-        spinner.find("input").val(value);
-        spinner.find("input").trigger("change");
-        console.log(value);
-        // $.ajax({
-        //   url: '/cart/change.js',
-        //   method: 'POST',
-        //   data: { id: variantId, quantity: value }
-        // })
-        // .done(function(response){
-        //   var cart = JSON.parse(response);
-        //   $.each(cart.items, function(index, value){
-        //     if(value.variant_id ===  )
-        //       console.log(value);
-        //   });
-        // })
-        // .fail(function(error){
-        //   console.log(error);
-        // });
-      });
-      btnDown.click(function() {
-        var oldValue = parseFloat(value);
-        if (oldValue <= min) {
-          var newVal = oldValue;
-        } else {
-          var newVal = oldValue - 1;
-        }
-        value = newVal;
-        spinner.find("input").val(newVal);
-        spinner.find("input").trigger("change");
-        console.log(value);
-        // $.ajax({
-        //   url: '/cart/change.js',
-        //   method: 'POST',
-        //   data: { id: variantId, quantity: value }
-        // })
-        // .done(function(response){
-        //   var cart = JSON.parse(response);
-        //   $.each(cart.items, function(index, value){
-        //     if(value.variant_id === variantId)
-        //       console.log(value);
-        //   });
-        // })
-        // .fail(function(error){
-        //   console.log(error);
-        // });
-      });
-    });
-
-    var input = $('input[type="number"]');
-    input.change(function(){
-      var self = this;
-      var item = $(this).closest('[data-variant-id]');
-      var variantId = item.attr('data-variant-id');
-      var value = $(this).val();
-      $.ajax({
-        url: '/cart/change.js',
-        method: 'POST',
-        data: { id: variantId, quantity: value }
-      })
-      .done(function(response){
-        var cart = JSON.parse(response);
-      })
-      .fail(function(error){
-        console.log(error);
-      })
-    });
-}
-
-function changeQty(variantId, qty) {
-  
-}

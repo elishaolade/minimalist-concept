@@ -1,0 +1,33 @@
+<div class="article-post__container">
+    <div class="article-post">
+        <div class="article-post__wrapper d-flex">
+            <div class="article-post__img-container mr-3">
+                <a href="{{article.url}}">
+                    {% if article.image %}
+                        <img src="{{ article.image }}" class="article-post__img" alt="{{ article.image.alt }}"/>
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" class="article-post__img" alt="{{ article.image.alt }}"/>
+                    {% endif %}
+                    <div class="publishing-container">
+                        <span>{{ article.published_at | date: "%a, %d %b %y" }}</span>
+                    </div>
+                </a>
+            </div>
+            <div class="article-post__content-container">
+                <div class="article-post__content-wrapper">
+                    <h5 class="article-post__title">
+                        <a href="{{ article.url }}">{{ article.title }}</a>
+                    </h5>
+                    <p class="article-post__exercept">
+                        {% if article.excerpt.size > 0 %}
+                            {{ article.excerpt }}
+                        {% else %}
+                            <p>{{ article.content | strip_html | truncatewords: 100 }}</p>
+                        {% endif %}
+                    </p>
+                    <a href="{{ article.url }}" class="btn btn-outline-dark">Read More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -66,3 +66,17 @@ https://codepen.io/komarovdesign/pen/PPRbgb
 
 CSS Selector Reference
 https://www.w3schools.com/cssref/css_selectors.asp
+
+10/28/20
+Add breadcrumb navigation
+https://shopify.dev/tutorials/customize-theme-add-breadcrumbs
+
+Predictive search
+https://shopify.dev/tutorials/add-predictive-search-to-your-shopify-theme
+
+Predictive Search API reference
+https://shopify.dev/docs/themes/ajax-api/reference/predictive-search
+
+
+
+

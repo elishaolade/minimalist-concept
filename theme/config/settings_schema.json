@@ -1,11 +1,11 @@
 [
   {
-    "name": "theme_info",
-    "theme_name": "Themekit template theme",
+    "name": "SAUCE",
+    "theme_name": "SAUCE",
+    "theme_author": "DevtechLA",
     "theme_version": "1.0.0",
-    "theme_author": "Shopify",
-    "theme_documentation_url": "https://github.com/Shopify/themekit",
-    "theme_support_url": "https://github.com/Shopify/themekit/issues"
+    "theme_documentation_url": "https://peaceful-hopper-422911.netlify.app/",
+    "theme_support_email": "devtechla@gmail.com"
   },
   {
     "name":"Logo",
@@ -14,6 +14,42 @@
         "type":"image_picker",
         "id":"logo",
         "label":"Logo"
+      }
+    ]
+  },
+  {
+    "name":"Company Name",
+    "settings": [
+      {
+        "type":"text",
+        "id":"company",
+        "label":"Company Name",
+        "default":"DevtechLA"
+      }
+    ]
+  },
+  {
+    "name":"Payment Options",
+    "settings": [
+      {
+        "type":"checkbox",
+        "id":"paypal_option",
+        "label":"Paypal"
+      },
+      {
+        "type":"checkbox",
+        "id":"visa_option",
+        "label":"Visa"
+      },
+      {
+        "type":"checkbox",
+        "id":"mastercard_option",
+        "label":"Mastercard"
+      },
+      {
+        "type":"checkbox",
+        "id":"amex_option",
+        "label":"American Express"
       }
     ]
   },

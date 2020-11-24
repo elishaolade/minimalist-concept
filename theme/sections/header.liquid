@@ -1,48 +1,63 @@
-<header class="header">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light w-100 justify-content-between">
-        <a class="navbar-brand" href="#">
-            <img class="logo" src="{{ settings.logo | img_url: '150x' }}" alt="logo"/>
+<nav class="header navbar navbar-expand-md navbar-dark" data-section-type="header-section" data-section-id="{{ section.id }}">
+    <a class="navbar-brand" href="{{ routes.root_url }}">
+        {% if settings.logo %}
+            <img src="{{ settings.logo | asset_img_url: '50px' }}"/>
+        {% else %}
+            <span class="shop__name header-element text-uppercase">{{shop.name}}</span>
+        {% endif %}
+    </a>
+    <div class="d-flex">
+        <a id="cart-btn" class="cart__link-mobile header-element mr-2" href="{{routes.cart_url}}">
+            <svg class="bag-icon" width="44" height="44" aria-hidden="true" focusable="false" role="presentation">
+                <path d="M14 33.5c-1 0-3.5-.5-3-3.5l1.5-12.5h19L33 30c.5 3-2 3.5-3 3.5H14zm12.5-19c0-2.21-2-4-4.5-4s-4.5 1.79-4.5 4v3h9v-3z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+                <g class="cart-count">
+                <circle class="cart-count-pulse" fill="none" cx="33" cy="19" r="6" stroke-width="3" filter="url(#cartCountPulseBlurFilter)"></circle>
+                <circle fill="#121212" stroke="#FFF" cx="33" cy="14" r="7"></circle>
+                <text fill="#FFF" id="x" class="cart-count-number" x="33" y="17" font-size="9" font-weight="bold" text-anchor="middle"  data-cart-item-count><tspan class="cart-item-count">{{ cart.item_count }}</tspan></text>
+                </g>
+            </svg>
         </a>
-        <div class="alt-btns">
-            <a class="mr-3" href="#">
-            <span class="text">Search</span>
-            <img class="loupe ml-2" src="{{ 'loupe.png' | asset_img_url: '40x' }}" alt="cart">
-            </a>
-            <button style="border: none" class="btn btn-outline-secondary mr-3" data-cart-button>Bag
-                <img class="bag ml-2" src="{{ 'shopping-bag.png' | asset_img_url: '40x' }}" alt="cart">
-                <span>{{ cart.item_count }}</span>
-            </button>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon">
-                    <img src="{{ 'menu.png' | asset_img_url: '40x' }}" alt="menu">
-                </span>
-            </button>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav">
-                {% comment %} Links in Main Menu {% endcomment %}
-                {% for link in linklists.main-menu.links %}
-                    {% comment %} Regular Links {% endcomment %}
-                    {% if link.links == blank %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ link.url }}">{{ link.title }}</a>
-                        </li>
-                    {% else %}
-                    {% comment %} Dropdown Links {% endcomment %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{{ link.url }}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ link.title }}
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            {% comment %} Child Links {% endcomment %}
-                            {% for childLink in link.links %}
-                                <a class="dropdown-item" href="{{ childLink.url }}">{{ childLink.title }}</a>
-                            {% endfor %}
-                        </div> 
-                    </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </nav>
-</header>
+        <button class="navbar-toggler header-element collapsed" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>    
+    </div>
+
+
+  <div class="navbar-collapse collapse" id="navbarsExampleDefault" style="">
+    <ul class="navbar-nav mr-auto">
+        {% for link in linklists.main-menu.links %}
+            {% if link.links == blank %}
+                <li class="nav-item">
+                    <a class="nav-link header-element" href="{{ link.url }}">{{ link.title }}</a>
+                </li>
+            {% else %}
+                <li class="nav-item dropdown header-element">
+                    <a class="nav-link header-element dropdown-toggle" href="{{ link.url }}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ link.title }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        {% comment %} Child Links {% endcomment %}
+                        {% for childLink in link.links %}
+                            <a class="dropdown-item header-element" href="{{ childLink.url }}">{{ childLink.title }}</a>
+                        {% endfor %}
+                    </div> 
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="header__links d-flex align-items-center">
+        <a id="cart-btn" class="cart__link-desktop header-element" href="{{routes.cart_url}}">
+            <svg class="bag-icon" width="44" height="44" aria-hidden="true" focusable="false" role="presentation">
+                <path d="M14 33.5c-1 0-3.5-.5-3-3.5l1.5-12.5h19L33 30c.5 3-2 3.5-3 3.5H14zm12.5-19c0-2.21-2-4-4.5-4s-4.5 1.79-4.5 4v3h9v-3z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+                <g class="cart-count">
+                <circle class="cart-count-pulse" fill="none" cx="33" cy="19" r="6" stroke-width="3" filter="url(#cartCountPulseBlurFilter)"></circle>
+                <circle fill="#121212" stroke="#FFF" cx="33" cy="14" r="7"></circle>
+                <text fill="#FFF" id="x" class="cart-count-number" x="33" y="17" font-size="9" font-weight="bold" text-anchor="middle"  data-cart-item-count><tspan class="cart-item-count">{{ cart.item_count }}</tspan></text>
+                </g>
+            </svg>
+        </a>
+    </div>
+    <button class="navbar-toggler header-element" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    </button>
+  </div>
+</nav>

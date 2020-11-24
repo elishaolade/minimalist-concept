@@ -1,6 +1,58 @@
 {
-  "current": "Default",
   "presets": {
     "Default": { }
+  },
+  "current": {
+    "paypal_option": true,
+    "visa_option": true,
+    "mastercard_option": true,
+    "amex_option": true,
+    "instagram_link": "https://www.instagram.com/devtec_la/",
+    "twitter_link": "https://twitter.com/devtech_la",
+    "sections":{
+      "header":{
+        "type":"header",
+        "settings":{}
+      },
+      "slideshow":{
+        "type":"slideshow",
+        "blocks":{
+          "placeholder-0":{
+            "type":"slide",
+            "settings":{
+              "slide-heading":"Smooth Operator",
+              "slide-content":"20% off on all watches!"
+            }
+          },
+          "placeholder-1":{
+            "type":"slide",
+            "settings":{
+              "slide-heading":"Hello",
+              "slide-content":"50% off on all Casio watches!"
+            }
+          }
+        },
+        "block_order":[
+          "placeholder-0",
+          "placeholder-1"
+        ]
+      },
+      "featured-collection":{
+        "type":"featured-collection",
+        "settings": {}
+      },
+      "footer-1":{
+        "type":"footer-1",
+        "settings":{
+          "about-caption":"Sauce is a simple theme with a minimal touch of elegance."
+        }
+      }
+    },
+    "content_for_index":[
+      "header",
+      "slideshow",
+      "featured-collection",
+      "footer-1"
+    ]
   }
 }

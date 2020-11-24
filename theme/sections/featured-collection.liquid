@@ -1,0 +1,86 @@
+<section class="featured-collection-section d-flex ">
+    <div class="container no-gutters">
+        <div class="row">
+            <div class="featured-collection-section_strip d-flex justify-content-between col-12 py-3">
+                <div class="strip_text">
+                    {{ collections[section.settings.collection-list].title }}
+                </div>
+                <div class="strip_link">
+                    <a class="collection__link" href="{{ collections[section.settings.collection-list].url }}">View Collection</a>
+                </div>
+            </div>
+        </div>
+        {% if section.settings.collection-list != blank %}
+            <div class="products row">
+                {% for product in collections[section.settings.collection-list].products %}
+                    <div class="product col-lg-4 col-md-6 col-12 p-0 p-sm-0 p-md-0 p-lg-0">
+                        {% if product.available %}
+                            <a href="{{ product.url }}" class="d-flex justify-content-center overflow">
+                                <img class="w-100" src="{{ product.featured_image | img_url: '300x400' }}"/>
+                            </a>
+                        {% endif %}
+                        <div class="overlay px-3 py-3 px-md-3 py-md-3 px-lg-5 py-lg-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <a href="{{ product.url }}" class="title">{{ product.title }}</a>
+                                {% if product.available %}
+                                    <div class="d-flex align-items-center">
+                                        {% if product.compare_at_price_max > product.price %}
+                                            <span class="tiny mr-2">Original:</span>
+                                            <span class="max-price mr-3">{{ product.compare_at_price_max  | money }}</span>
+                                            <span class="tiny mr-2">Now: </span>
+                                            <span class="price">{{ product.price | money }}</span>
+                                        {% else %}
+                                            <span class="price">{{ product.price | money }}</span>
+                                        {% endif %}
+                                        
+                                    </div>
+                                {% else %}
+                                    <span>Sold out</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="products row">
+                {% for i in (1..3) %}
+                    <div class="product col-lg-4 col-md-6 col-12 p-0 p-sm-0 p-md-0 p-lg-0">
+                        <a href="{{ product.url }}" class="d-flex justify-content-center overflow" style="max-height: 400px;">
+                            {{ 'product-' | append: forloop.index | placeholder_svg_tag:'w-100' }}
+                        </a>
+                        <div class="overlay px-3 py-3 px-md-3 py-md-3 px-lg-5 py-lg-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <a href="#" class="title">Product Title</a>
+                                <div class="d-flex align-items-center">
+                                    <span class="price">$100.00</span>                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section> 
+<script>
+    console.log('{{collections[section.settings.collection-list].products[0].title}}')
+</script>
+{% schema %}
+    {
+        "name":"Featured Collection",
+        "settings": [
+            {
+                "id":"collection-list",
+                "type":"collection",
+                "label":"Product Collection"
+            }
+        ],
+        "presets": [
+            {
+            "name": "Featured Collection",
+            "category": "Collection"
+            }
+        ]
+    }
+{% endschema %}
